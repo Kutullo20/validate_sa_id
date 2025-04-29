@@ -40,4 +40,13 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+
+    //Enabled detailed test output in console
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true  
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
 }
