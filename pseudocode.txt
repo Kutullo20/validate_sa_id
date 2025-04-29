@@ -1,0 +1,34 @@
+tdd/step-01-failing-test------------->START
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+    METHOD validate(idNumber)
+        PRINT "[VALIDATION] Checking ID: " + idNumber + " -> FAIL (RED PHASE)"
+        RETURN false
+    END METHOD
+END CLASS
+
+
+@@TEST FILE
+
+
+CLASS ValidateSaIdTest
+    METHOD testValidIds()
+        PRINT "\n=== TEST START (RED PHASE) ==="
+        
+        ARRAY validIds = ["2001014800086", "2909035800085"]
+        
+        FOR EACH id IN validIds
+            PRINT "Testing ID: " + id
+            BOOLEAN result = ValidateSaId.validate(id)
+            PRINT "RESULT: " + id + " -> " + (IF result THEN "PASS" ELSE "FAIL")
+            ASSERT result IS TRUE WITH MESSAGE "RED PHASE: Should fail for ID " + id
+        END FOR
+        
+        PRINT "=== TEST END (EXPECTED FAILURE) ===\n"
+    END METHOD
+END CLASS
+
+
+tdd/step-01-failing-test------------->END
