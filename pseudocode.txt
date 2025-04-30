@@ -32,3 +32,71 @@ END CLASS
 
 
 tdd/step-01-failing-test------------->END
+
+tdd/step-01-pass-test---------------->START
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+    METHOD validate(idNumber)
+        logPrefix = "[VALIDATOR]"
+        
+        IF idNumber IS NULL THEN
+            status = "FAIL"
+            reason = "ID cannot be null"
+        ELSE IF idNumber DOES NOT MATCH "13 digits" THEN
+            status = "FAIL"
+            reason = "ID must be 13 digits"
+        ELSE
+            status = "PASS"
+            reason = "Valid 13-digit format"
+        END IF
+        
+        PRINT FORMAT "%s STATUS: %-4s | ID: %-13s | REASON: %s",
+                    logPrefix, status, idNumber, reason
+        
+        RETURN status EQUALS "PASS"
+    END METHOD
+END CLASS
+
+@@TEST FILE
+
+CLASS ValidateSaIdTest
+    METHOD testValidIds()
+        PRINT "\n=== TEST VALID IDs ==="
+        
+        ARRAY validIds = ["2001014800086", "2909035800085"]
+        
+        FOR EACH id IN validIds
+            PRINT FORMAT "[TESTER] Testing ID: %s", id
+            BOOLEAN result = ValidateSaId.validate(id)
+            
+            STRING testResult = IF result THEN "PASS" ELSE "FAIL"
+            PRINT FORMAT "[TESTER] RESULT: %-4s | ID: %-13s", testResult, id
+            
+            ASSERT result IS TRUE WITH MESSAGE "Validation failed for ID: " + id
+        END FOR
+        
+        PRINT "=== TEST COMPLETE ===\n"
+    END METHOD
+    
+    METHOD testInvalidIds()
+        PRINT "\n=== TEST INVALID IDs ==="
+        
+        ARRAY invalidIds = [null, "123", "ABCDEFGHIJKLM"]
+        
+        FOR EACH id IN invalidIds
+            PRINT FORMAT "[TESTER] Testing ID: %s", id
+            BOOLEAN result = ValidateSaId.validate(id)
+            
+            STRING testResult = IF result THEN "PASS" ELSE "FAIL"
+            PRINT FORMAT "[TESTER] RESULT: %-4s | ID: %-13s", testResult, id
+            
+            ASSERT result IS FALSE WITH MESSAGE "Validation incorrectly passed for ID: " + id
+        END FOR
+        
+        PRINT "=== TEST COMPLETE ===\n"
+    END METHOD
+END CLASS
+
+tdd/step-01-pass-test---------------->END
