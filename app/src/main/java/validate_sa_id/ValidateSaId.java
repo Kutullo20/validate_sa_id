@@ -2,29 +2,40 @@ package validate_sa_id;
 
 /**
  * Provides validation for South African ID numbers.
- * Currently in RED phase of TDD (Test-Driven Development) where implementation
- * is deliberately incorrect to fail tests initially.
+ * Now in GREEN phase of TDD with standardized output formatting.
  */
 public class ValidateSaId {
 
     /**
-     * Validates a South African ID number.
-     * Currently in RED phase: always returns false to force test failures.
+     * Validates a South African ID number with structured output.
      * 
-     * @param idNumber The ID number to validate (13-digit String)
-     * @return boolean Always returns false in RED phase (will be implemented properly later)
+     * @param idNumber The ID number to validate
+     * @return boolean True if valid 13-digit format, false otherwise
      * 
      * @implNote
-     * Current RED phase implementation:
-     * - Logs validation attempt
-     * - Deliberately fails all validations
-     * - Actual validation logic will be added in GREEN phase
+     * - Uses consistent output format for pass/fail cases
+     * - Future enhancements will add Luhn algorithm validation
      */
     public static boolean validate(String idNumber) {
-        // // Log validation attempt (RED phase)
-        System.out.println("[VALIDATION] Checking ID: " + idNumber + " -> FAIL (RED PHASE)");
+        String logPrefix = "[VALIDATOR]";
+        String status;
+        String reason;
         
-        // // RED PHASE: Intentional failure
-        return false;
+        if (idNumber == null) {
+            status = "FAIL";
+            reason = "ID cannot be null";
+        } else if (!idNumber.matches("\\d{13}")) {
+            status = "FAIL";
+            reason = "ID must be 13 digits";
+        } else {
+            status = "PASS";
+            reason = "Valid 13-digit format";
+        }
+        
+        // Standardized output format
+        System.out.printf("%s STATUS: %-4s | ID: %-13s | REASON: %s%n",
+                         logPrefix, status, idNumber, reason);
+        
+        return status.equals("PASS");
     }
 }
