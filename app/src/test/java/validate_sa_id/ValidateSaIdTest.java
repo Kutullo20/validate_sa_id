@@ -4,39 +4,32 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class for validating South African ID numbers.
- * Currently in RED phase of TDD (Test-Driven Development) where tests are designed to fail first.
+ * Test class for South African ID validation with standardized output.
  */
 public class ValidateSaIdTest {
     
     /**
-     * Tests validation of valid South African ID numbers.
-     * In RED phase, this test expects validation to fail (negative testing).
-     * Uses sample valid IDs that should pass in final implementation.
+     * Tests valid ID numbers with consistent reporting format.
      */
     @Test
-    public void testValidIds() {  
-        // Test phase marker
-        System.out.println("\n=== TEST START (RED PHASE) ===");
+    public void testValidIds() {
+        System.out.println("\n=== TEST VALID IDs ===");
         
-        // Sample valid South African ID numbers (should pass validation when implemented)
         String[] validIds = {"2001014800086", "2909035800085"};
         
-        // Test each ID in the array
         for (String id : validIds) {
-            System.out.println("Testing ID: " + id);
+            System.out.printf("[TESTER] Testing ID: %s%n", id);
+            boolean result = ValidateSaId.validate(id);
             
-            // Validate the ID number
-            boolean result = ValidateSaId.validate(id);  
+            // Standardized result format
+            String testResult = result ? "PASS" : "FAIL";
+            System.out.printf("[TESTER] RESULT: %-4s | ID: %-13s%n", 
+                             testResult, id);
             
-            // Print formatted test result
-            System.out.printf("RESULT: %s -> %s%n", id, result ? "PASS" : "FAIL");
-            
-            // Assertion will fail in RED phase (expected behavior)
-            assertTrue(result, "RED PHASE: Should fail for ID " + id);
+            assertTrue(result, "Validation failed for ID: " + id);
         }
         
-        // End of test phase marker
-        System.out.println("=== TEST END (EXPECTED FAILURE) ===\n");
+        System.out.println("=== TEST COMPLETE ===\n");
     }
 }
+
