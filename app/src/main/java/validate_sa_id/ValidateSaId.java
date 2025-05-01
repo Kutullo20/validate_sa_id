@@ -7,7 +7,8 @@ public class ValidateSaId {
      * @return false if length <13 (or null), no true cases yet
      */
     public static boolean validate(String idNumber) {
-        // Only fail cases - no pass logic implemented yet
+        // Both fail cases and  pass logic implemented in the test class
+        // Return true UNLESS the input is null OR shorter than 13 chars
         return !(idNumber == null || idNumber.length() < 13);
     }
 }
