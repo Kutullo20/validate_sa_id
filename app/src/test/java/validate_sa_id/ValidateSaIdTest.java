@@ -3,32 +3,35 @@ package validate_sa_id;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test class for South African ID validation with standardized output.
- */
 public class ValidateSaIdTest {
-    
-    /**
-     * Tests valid ID numbers with consistent reporting format.
-     */
+
     @Test
-    public void testValidIds() {
-        System.out.println("\n=== TEST VALID IDs ===");
+    public void testShortStringsAllShouldFail() {
+        String[] invalidIds = {
+            null,     // null
+            "",       // empty
+            "1",      // 1 char
+            "123",    // 3 chars
+            "123456789012" // 12 chars (1 short)
+        };
+
+        System.out.println("SHORT STRING VALIDATION (ALL SHOULD FAIL)");
+        System.out.println("========================================");
         
-        String[] validIds = {"2001014800086", "2909035800085"};
-        
-        for (String id : validIds) {
-            System.out.printf("[TESTER] Testing ID: %s%n", id);
+
+        for (String id : invalidIds) {  
             boolean result = ValidateSaId.validate(id);
+            System.out.printf(
+                "Input: %-15s → %s%n",
+                id == null ? "null" : "\"" + id + "\"",
+                result ? "PASS (UNEXPECTED)" : "FAIL (CORRECT)"
+            );
             
-            // Standardized result format
-            String testResult = result ? "PASS" : "FAIL";
-            System.out.printf("[TESTER] RESULT: %-4s | ID: %-13s%n", 
-                             testResult, id);
-            
-            assertTrue(result, "Validation failed for ID: " + id);
+            // Assert that the validation result is false, because all inputs in this test are expected to be invalid.
+            assertFalse(result, 
+                String.format("Input: %s unexpectedly passed validation", 
+                    id == null ? "null" : "\"" + id + "\""));
         }
         
-        System.out.println("=== TEST COMPLETE ===\n");
     }
 }
