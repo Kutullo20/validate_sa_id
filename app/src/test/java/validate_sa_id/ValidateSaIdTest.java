@@ -32,4 +32,3 @@ public class ValidateSaIdTest {
         System.out.println("=== TEST COMPLETE ===\n");
     }
 }
-
