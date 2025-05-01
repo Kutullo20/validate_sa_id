@@ -100,3 +100,58 @@ CLASS ValidateSaIdTest
 END CLASS
 
 tdd/step-01-pass-test---------------->END
+
+tdd/step-02-failing-test---------------->START
+
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+
+    METHOD validate(idNumber: String) RETURNS boolean
+        // Check if the input is null or has length less than 13
+        IF idNumber IS NULL OR LENGTH(idNumber) < 13 THEN
+            RETURN false
+        ELSE
+            RETURN true
+        END IF
+    END METHOD
+
+END CLASS
+
+@@TEST CLASS
+
+CLASS ValidateSaIdTest
+
+    METHOD testShortStringsAllShouldFail()
+        // Define test cases that should all fail validation
+        invalidIds = [
+            null,               // null case
+            "",                 // empty string
+            "1",                // single character
+            "123",              // 3 characters
+            "123456789012"     // 12 characters (1 short of required length)
+        ]
+
+        PRINT "SHORT STRING VALIDATION (ALL SHOULD FAIL)"
+        PRINT "========================================"
+
+        // Test each invalid ID
+        FOR EACH id IN invalidIds DO
+            // Call validation method
+            result = ValidateSaId.validate(id)
+            
+            // Format output message
+            displayId = IF id IS NULL THEN "null" ELSE "'" + id + "'"
+            status = IF result THEN "PASS (UNEXPECTED)" ELSE "FAIL (CORRECT)"
+            
+            PRINT "Input: " + displayId + " → " + status
+            
+            // Assert that validation fails
+            ASSERT result IS false WITH MESSAGE "Input: " + displayId + " unexpectedly passed validation"
+        END FOR
+    END METHOD
+
+END CLASS
+
+tdd/step-02-failing-test---------------->END
