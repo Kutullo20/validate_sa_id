@@ -18,7 +18,6 @@ public class ValidateSaIdTest {
         System.out.println("INVALID LENGTH VALIDATION (ALL SHOULD FAIL)");
         System.out.println("=========================================");
         
-
         for (String id : invalidIds) {  
             boolean result = ValidateSaId.validate(id);
             System.out.printf(
@@ -83,4 +82,33 @@ public class ValidateSaIdTest {
                 String.format("Input: %s unexpectedly passed validation", "\"" + id + "\""));
         }
     }
+    
+    @Test
+    public void testStringsWithSpecialCharactersShouldFail() {
+        String[] invalidIds = {
+            "123456789012A",    // contains letter
+            "12345678901 3",    // contains space
+            "12345678901-3",    // contains hyphen
+            "12345678901_3",    // contains underscore
+            "12345678901.3",    // contains period
+            "ABC!@#1234567",   // multiple special chars
+            "123 456 789 012"   // contains spaces
+        };
+    
+        System.out.println("\nSPECIAL CHARACTER VALIDATION (ALL SHOULD FAIL)");
+        System.out.println("===========================================");
+        
+        for (String id : invalidIds) {
+            boolean result = ValidateSaId.validate(id);
+            System.out.printf(
+                "Input: %-20s → %s%n",
+                "\"" + id + "\"",
+                result ? "PASS (UNEXPECTED)" : "FAIL (CORRECT)"
+            );
+            
+            assertFalse(result, 
+                String.format("Input: %s unexpectedly passed validation", "\"" + id + "\""));
+        }
+    }
 }
+
