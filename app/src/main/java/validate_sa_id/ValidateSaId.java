@@ -6,6 +6,7 @@ public class ValidateSaId {
      * 1. Exactly 13 digits
      * 2. Valid date of birth (YYMMDD)
      * 3. Valid gender digits (SSSS) - 0000-4999 female, 5000-9999 male
+     * 4. Valid citizenship digit (C) - 0 for citizen, 1 for permanent resident
      * @param idNumber ID number to validate
      * @return true if valid, false otherwise
      */
@@ -30,11 +31,15 @@ public class ValidateSaId {
         // Extract gender digits 
         int genderDigits = Integer.parseInt(idNumber.substring(6, 10));
         
-        return isValidDate(year, month, day) && isValidGender(genderDigits);
+        // Extract citizenship digit
+        int citizenshipDigit = Integer.parseInt(idNumber.substring(10, 11));
+        
+        return isValidDate(year, month, day) && 
+               isValidGender(genderDigits) && 
+               isValidCitizenship(citizenshipDigit);
     }
     
     private static boolean isValidDate(int year, int month, int day) {
-      
         if (month < 1 || month > 12) {
             return false;
         }
@@ -64,6 +69,10 @@ public class ValidateSaId {
         return true;
     }
     
+    private static boolean isValidCitizenship(int citizenshipDigit) {
+        return citizenshipDigit == 0 || citizenshipDigit == 1;
+    }
+    
     /**
      * Determines gender from ID number
      * @param idNumber South African ID number
@@ -77,5 +86,20 @@ public class ValidateSaId {
         
         int genderDigits = Integer.parseInt(idNumber.substring(6, 10));
         return genderDigits < 5000 ? "female" : "male";
+    }
+    
+    /**
+     * Determines citizenship status from ID number
+     * @param idNumber South African ID number
+     * @return citizen=> if C is 0, permanent resident=> if C is 1
+     * @throws IllegalArgumentException if ID number is invalid
+     */
+    public static String getCitizenship(String idNumber) {
+        if (!validate(idNumber)) {
+            throw new IllegalArgumentException("Invalid South African ID number");
+        }
+        
+        int citizenshipDigit = Integer.parseInt(idNumber.substring(10, 11));
+        return citizenshipDigit == 0 ? "citizen" : "permanent resident";
     }
 }
