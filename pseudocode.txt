@@ -195,3 +195,59 @@ CLASS ValidateSaIdTest
 END CLASS
 
 tdd/step-02-pass-test------------------->END
+
+tdd/step-03-failing-test---------------->START
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+
+    /**
+     * Checks if the input string is exactly 13 characters long.
+     * @param idNumber (String) - The input to validate.
+     * @return (boolean) - True if length is exactly 13, false otherwise (including null).
+     */
+    METHOD validate(idNumber: String) RETURNS boolean
+        // Direct translation of Java's single-line return logic:
+        // "Return true only if idNumber is not null AND length equals 13"
+        RETURN (idNumber IS NOT NULL) AND (LENGTH(idNumber) == 13)
+    END METHOD
+
+END CLASS
+
+@TEST CLASS
+
+CLASS ValidateSaIdTest
+
+    METHOD testInvalidLengthStringsTooLongShouldFail()
+        // P: Purpose - Verify IDs longer than 13 digits fail length validation
+        // E: Examples - 14 chars, 15 chars, 20 chars, and extreme case (32 chars)
+        INVALID_IDS = [
+            "12345678901234",      // 14 chars (1 too long)
+            "123456789012345",     // 15 chars
+            "12345678901234567890", // 20 chars
+            "00000000000000000000000000000000" // 32 chars
+        ]
+        
+        // Clear test execution flow
+        PRINT "\nTOO LONG VALIDATION (ALL SHOULD FAIL)"
+        PRINT "===================================="
+        
+        FOR EACH id IN INVALID_IDS
+            
+            result = CALL ValidateSaId.validate(id)
+            
+            PRINT FORMAT("Input: %-20s → %s",
+                        QUOTE(id),
+                        IF result THEN "PASS (UNEXPECTED)" 
+                        ELSE "FAIL (CORRECT)")
+            
+            ASSERT_FALSE(result, 
+                FORMAT("Input: %s unexpectedly passed validation", 
+                       QUOTE(id)))
+        END FOR
+    END METHOD
+
+END CLASS
+
+tdd/step-03-failing-test---------------->END
