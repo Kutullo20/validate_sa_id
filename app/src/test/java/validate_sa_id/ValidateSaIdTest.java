@@ -366,4 +366,63 @@ public class ValidateSaIdTest {
             assertFalse(isValid, "Should FAIL: Invalid ID structure");
         }
     }
+
+    // Citizenship Validation Tests
+    
+    @Test
+    public void testValidCitizenshipDigitsShouldPass() {
+        String[] validIds = {
+            "0001015009087",  // citizen 0
+            "0001015009187"   // permanent resident 1
+        };
+
+        System.out.println("\nVALID CITIZENSHIP VALIDATION (ALL SHOULD PASS)");
+        System.out.println("===========================================");
+        
+        for (String id : validIds) {
+            boolean result = ValidateSaId.validate(id);
+            System.out.printf(
+                "Input: %-20s → %s%n",
+                "\"" + id + "\"",
+                result ? "PASS (CORRECT)" : "FAIL (UNEXPECTED)"
+            );
+            assertTrue(result);
+        }
+    }
+
+    @Test
+    public void testInvalidCitizenshipDigitsShouldFail() {
+        String[] invalidIds = {
+            "0001015009287",  // 2 
+            "0001015009387",  // 3 
+            "0001015009487",  // 4 
+            "0001015009587",  // 5 
+            "0001015009687",  // 6 
+            "0001015009787",  // 7 
+            "0001015009887",  // 8 
+            "0001015009987"   // 9 
+        };
+
+        System.out.println("\nINVALID CITIZENSHIP VALIDATION (ALL SHOULD FAIL)");
+        System.out.println("=============================================");
+        
+        for (String id : invalidIds) {
+            boolean result = ValidateSaId.validate(id);
+            System.out.printf(
+                "Input: %-20s → %s%n",
+                "\"" + id + "\"",
+                result ? "PASS (UNEXPECTED)" : "FAIL (CORRECT)"
+            );
+            assertFalse(result);
+        }
+    }
+
+    @Test
+    public void testGetCitizenship() {
+        assertEquals("citizen", ValidateSaId.getCitizenship("0001015009087"));
+        assertEquals("permanent resident", ValidateSaId.getCitizenship("0001015009187"));
+        
+        assertThrows(IllegalArgumentException.class, 
+            () -> ValidateSaId.getCitizenship("0001015009287"));
+    }
 }
