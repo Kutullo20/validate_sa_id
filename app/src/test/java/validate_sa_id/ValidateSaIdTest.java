@@ -58,4 +58,29 @@ public class ValidateSaIdTest {
                 String.format("Input: %s unexpectedly failed validation", "\"" + id + "\""));
         }
     }
+
+    @Test
+    public void testInvalidLengthStringsTooLongShouldFail() {
+        String[] invalidIds = {
+            "12345678901234",    // 14 chars (1 too long)
+            "123456789012345",    // 15 chars
+            "12345678901234567890", // 20 chars
+            "00000000000000000000000000000000" // 32 chars
+        };
+    
+        System.out.println("\nTOO LONG VALIDATION (ALL SHOULD FAIL)");
+        System.out.println("====================================");
+        
+        for (String id : invalidIds) {
+            boolean result = ValidateSaId.validate(id);
+            System.out.printf(
+                "Input: %-20s → %s%n",
+                "\"" + id + "\"",
+                result ? "PASS (UNEXPECTED)" : "FAIL (CORRECT)"
+            );
+            
+            assertFalse(result, 
+                String.format("Input: %s unexpectedly passed validation", "\"" + id + "\""));
+        }
+    }
 }
