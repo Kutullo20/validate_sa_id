@@ -28,6 +28,20 @@
 - 🛂 Citizenship status identification
 - 🔢 Luhn checksum verification
 
+### 📊 Previous Test Results
+1. **Navigate to previous branches:**
+   ```bash
+   git branch -a  # List all branches
+   git checkout <branch-name>  # Switch to target branch
+2. **Run tests individually:**
+   ```bash
+   ./gradlew test --tests "validate_sa_id.ValidateSaIdTest"
+
+## 👀 Results Preview 
+![ID Validation Results](ID-VALIDATION-RESULTS.png)
+
+
+
 
 
 
