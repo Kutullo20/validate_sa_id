@@ -1,0 +1,316 @@
+tdd/step-01-failing-test------------->START
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+    METHOD validate(idNumber)
+        PRINT "[VALIDATION] Checking ID: " + idNumber + " -> FAIL (RED PHASE)"
+        RETURN false
+    END METHOD
+END CLASS
+
+
+@@TEST FILE
+
+
+CLASS ValidateSaIdTest
+    METHOD testValidIds()
+        PRINT "\n=== TEST START (RED PHASE) ==="
+        
+        ARRAY validIds = ["2001014800086", "2909035800085"]
+        
+        FOR EACH id IN validIds
+            PRINT "Testing ID: " + id
+            BOOLEAN result = ValidateSaId.validate(id)
+            PRINT "RESULT: " + id + " -> " + (IF result THEN "PASS" ELSE "FAIL")
+            ASSERT result IS TRUE WITH MESSAGE "RED PHASE: Should fail for ID " + id
+        END FOR
+        
+        PRINT "=== TEST END (EXPECTED FAILURE) ===\n"
+    END METHOD
+END CLASS
+
+
+tdd/step-01-failing-test------------->END
+
+tdd/step-01-pass-test---------------->START
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+    METHOD validate(idNumber)
+        logPrefix = "[VALIDATOR]"
+        
+        IF idNumber IS NULL THEN
+            status = "FAIL"
+            reason = "ID cannot be null"
+        ELSE IF idNumber DOES NOT MATCH "13 digits" THEN
+            status = "FAIL"
+            reason = "ID must be 13 digits"
+        ELSE
+            status = "PASS"
+            reason = "Valid 13-digit format"
+        END IF
+        
+        PRINT FORMAT "%s STATUS: %-4s | ID: %-13s | REASON: %s",
+                    logPrefix, status, idNumber, reason
+        
+        RETURN status EQUALS "PASS"
+    END METHOD
+END CLASS
+
+@@TEST FILE
+
+CLASS ValidateSaIdTest
+    METHOD testValidIds()
+        PRINT "\n=== TEST VALID IDs ==="
+        
+        ARRAY validIds = ["2001014800086", "2909035800085"]
+        
+        FOR EACH id IN validIds
+            PRINT FORMAT "[TESTER] Testing ID: %s", id
+            BOOLEAN result = ValidateSaId.validate(id)
+            
+            STRING testResult = IF result THEN "PASS" ELSE "FAIL"
+            PRINT FORMAT "[TESTER] RESULT: %-4s | ID: %-13s", testResult, id
+            
+            ASSERT result IS TRUE WITH MESSAGE "Validation failed for ID: " + id
+        END FOR
+        
+        PRINT "=== TEST COMPLETE ===\n"
+    END METHOD
+    
+    METHOD testInvalidIds()
+        PRINT "\n=== TEST INVALID IDs ==="
+        
+        ARRAY invalidIds = [null, "123", "ABCDEFGHIJKLM"]
+        
+        FOR EACH id IN invalidIds
+            PRINT FORMAT "[TESTER] Testing ID: %s", id
+            BOOLEAN result = ValidateSaId.validate(id)
+            
+            STRING testResult = IF result THEN "PASS" ELSE "FAIL"
+            PRINT FORMAT "[TESTER] RESULT: %-4s | ID: %-13s", testResult, id
+            
+            ASSERT result IS FALSE WITH MESSAGE "Validation incorrectly passed for ID: " + id
+        END FOR
+        
+        PRINT "=== TEST COMPLETE ===\n"
+    END METHOD
+END CLASS
+
+tdd/step-01-pass-test---------------->END
+
+tdd/step-02-failing-test---------------->START
+
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+
+    METHOD validate(idNumber: String) RETURNS boolean
+        // Check if the input is null or has length less than 13
+        IF idNumber IS NULL OR LENGTH(idNumber) < 13 THEN
+            RETURN false
+        ELSE
+            RETURN true
+        END IF
+    END METHOD
+
+END CLASS
+
+@@TEST CLASS
+
+CLASS ValidateSaIdTest
+
+    METHOD testShortStringsAllShouldFail()
+        // Define test cases that should all fail validation
+        invalidIds = [
+            null,               // null case
+            "",                 // empty string
+            "1",                // single character
+            "123",              // 3 characters
+            "123456789012"     // 12 characters (1 short of required length)
+        ]
+
+        PRINT "SHORT STRING VALIDATION (ALL SHOULD FAIL)"
+        PRINT "========================================"
+
+        // Test each invalid ID
+        FOR EACH id IN invalidIds DO
+            // Call validation method
+            result = ValidateSaId.validate(id)
+            
+            // Format output message
+            displayId = IF id IS NULL THEN "null" ELSE "'" + id + "'"
+            status = IF result THEN "PASS (UNEXPECTED)" ELSE "FAIL (CORRECT)"
+            
+            PRINT "Input: " + displayId + " → " + status
+            
+            // Assert that validation fails
+            ASSERT result IS false WITH MESSAGE "Input: " + displayId + " unexpectedly passed validation"
+        END FOR
+    END METHOD
+
+END CLASS
+
+tdd/step-02-failing-test---------------->END
+
+tdd/step-02-pass-test------------------->START
+
+@@TEST CLASS
+
+CLASS ValidateSaIdTest
+
+    METHOD testValidLengthStringsAllShouldPass()
+        // P: Purpose - Verify valid 13-digit IDs pass length validation
+        // E: Examples - Standard, edge, and realistic test cases
+        TEST_CASES = [
+            "1234567890123",      
+            "0000000000000",      
+            "9999999999999",      
+            "8001015009087",      
+            "9002015009087"       
+        ]
+        
+        // Clear test execution flow
+        PRINT "VALID LENGTH VALIDATION (ALL SHOULD PASS)"
+        PRINT "======================================="
+        
+        FOR EACH id IN TEST_CASES
+            
+            result = CALL ValidateSaId.validate(id)
+            
+            PRINT FORMAT("Input: %-20s → %s",
+                        QUOTE(id),
+                        IF result THEN "PASS (CORRECT)" 
+                        ELSE "FAIL (UNEXPECTED)")
+            
+            ASSERT_TRUE(result, 
+                FORMAT("Input: %s unexpectedly failed validation", 
+                       QUOTE(id)))
+        END FOR
+    END METHOD
+
+END CLASS
+
+tdd/step-02-pass-test------------------->END
+
+tdd/step-03-failing-test---------------->START
+
+@@MAIN CLASS
+
+CLASS ValidateSaId
+
+    /**
+     * Checks if the input string is exactly 13 characters long.
+     * @param idNumber (String) - The input to validate.
+     * @return (boolean) - True if length is exactly 13, false otherwise (including null).
+     */
+    METHOD validate(idNumber: String) RETURNS boolean
+        // Direct translation of Java's single-line return logic:
+        // "Return true only if idNumber is not null AND length equals 13"
+        RETURN (idNumber IS NOT NULL) AND (LENGTH(idNumber) == 13)
+    END METHOD
+
+END CLASS
+
+@TEST CLASS
+
+CLASS ValidateSaIdTest
+
+    METHOD testInvalidLengthStringsTooLongShouldFail()
+        // P: Purpose - Verify IDs longer than 13 digits fail length validation
+        // E: Examples - 14 chars, 15 chars, 20 chars, and extreme case (32 chars)
+        INVALID_IDS = [
+            "12345678901234",      // 14 chars (1 too long)
+            "123456789012345",     // 15 chars
+            "12345678901234567890", // 20 chars
+            "00000000000000000000000000000000" // 32 chars
+        ]
+        
+        // Clear test execution flow
+        PRINT "\nTOO LONG VALIDATION (ALL SHOULD FAIL)"
+        PRINT "===================================="
+        
+        FOR EACH id IN INVALID_IDS
+            
+            result = CALL ValidateSaId.validate(id)
+            
+            PRINT FORMAT("Input: %-20s → %s",
+                        QUOTE(id),
+                        IF result THEN "PASS (UNEXPECTED)" 
+                        ELSE "FAIL (CORRECT)")
+            
+            ASSERT_FALSE(result, 
+                FORMAT("Input: %s unexpectedly passed validation", 
+                       QUOTE(id)))
+        END FOR
+    END METHOD
+
+END CLASS
+
+tdd/step-03-failing-test---------------->END
+
+tdd/step-04-reject-special-characters---------------->START
+
+@@MAIN CLASS
+
+METHOD VALIDATE(idNumber)
+    // Reject any non-digit characters in ID
+    // Checks each character is 0-9
+    // Uses Character.isDigit() for Unicode safety
+    
+    
+    FOR EACH char IN idNumber.toCharArray()
+        IF NOT Character.isDigit(char) THEN
+            RETURN FALSE  // Early exit on first non-digit
+        END IF
+    END FOR
+    
+    RETURN TRUE
+END METHOD
+
+@@TEST CLASS
+
+METHOD testStringsWithSpecialCharactersShouldFail()
+    // P: Verify ID numbers containing special characters/letters fail validation
+    // E: Tests letters, spaces, hyphens, underscores, periods, mixed chars
+    // S: Assert all non-digit inputs return false with clear failure messages
+    // U: Ensures only pure numeric IDs pass validation
+
+    INVALID_IDS = [
+        "123456789012A",    
+                          
+        "12345678901 3",    
+                            
+        "12345678901-3",    
+                          
+        "12345678901_3",    
+                          
+        "12345678901.3",    
+                          
+        "ABC!@#1234567",   
+                          
+        "123 456 789 012"   
+                          
+    ]
+
+    PRINT "\nSPECIAL CHARACTER VALIDATION (ALL SHOULD FAIL)"
+    PRINT "==========================================="
+    
+    FOR EACH id IN INVALID_IDS
+        result = CALL ValidateSaId.validate(id)
+        
+        PRINT FORMAT("Input: %-20s → %s",
+                    QUOTE(id),
+                    IF result THEN "PASS (UNEXPECTED)" 
+                    ELSE "FAIL (CORRECT)")
+        
+        ASSERT_FALSE(result,
+            FORMAT("Input %s with special chars passed validation", 
+                  QUOTE(id)))
+    END FOR
+END METHOD
+
+tdd/step-04-reject-special-characters---------------->END
