@@ -250,4 +250,120 @@ public class ValidateSaIdTest {
             assertFalse(result);
         }
     }
+
+    @Test
+    public void testValidFemaleIds() {
+        String[] validFemaleIds = {
+            "9202200000087",  // 0000 (female)
+            "9202201234087",  // 1234 (female)
+            "9202204999087"   // 4999 (female)
+        };
+
+        System.out.println("\nVALID FEMALE IDs (0000-4999)");
+        System.out.println("=========================");
+        
+        for (String id : validFemaleIds) {
+            boolean isValid = ValidateSaId.validate(id);
+            System.out.printf(
+                "ID: %s → %s%n", 
+                id, 
+                isValid ? "VALID (PASS)" : "INVALID (FAIL)"
+            );
+            assertTrue(isValid, "Should PASS: Valid female ID");
+        }
+    }
+
+    // ===== VALID MALE IDs (5000-9999) =====
+    @Test
+    public void testValidMaleIds() {
+        String[] validMaleIds = {
+            "9202205000087",  // 5000 (male)
+            "9202207500087",  // 7500 (male)
+            "9202209999087"   // 9999 (male)
+        };
+
+        System.out.println("\nVALID MALE IDs (5000-9999)");
+        System.out.println("=======================");
+        
+        for (String id : validMaleIds) {
+            boolean isValid = ValidateSaId.validate(id);
+            System.out.printf(
+                "ID: %s → %s%n", 
+                id, 
+                isValid ? "VALID (PASS)" : "INVALID (FAIL)"
+            );
+            assertTrue(isValid, "Should PASS: Valid male ID");
+        }
+    }
+
+    // ===== INVALID FEMALE IDs (5000-9999 but marked as female) =====
+    @Test
+    public void testInvalidFemaleIds() {
+        String[] invalidFemaleIds = {
+            "9202205000087",  // 5000 (should be male)
+            "9202207500087",  // 7500 (should be male)
+            "9202209999087"   // 9999 (should be male)
+        };
+
+        System.out.println("\nINVALID FEMALE IDs (INCORRECT GENDER DIGITS)");
+        System.out.println("=====================================");
+        
+        for (String id : invalidFemaleIds) {
+            boolean isValid = ValidateSaId.validate(id);
+            System.out.printf(
+                "ID: %s → %s%n", 
+                id, 
+                isValid ? "VALID (PASS)" : "INVALID (FAIL)"
+            );
+            assertTrue(isValid, "Should PASS (valid ID format, but wrong gender)");
+        }
+    }
+
+    // ===== INVALID MALE IDs (0000-4999 but marked as male) =====
+    @Test
+    public void testInvalidMaleIds() {
+        String[] invalidMaleIds = {
+            "9202200000087",  // 0000 (should be female)
+            "9202201234087",  // 1234 (should be female)
+            "9202204999087"   // 4999 (should be female)
+        };
+
+        System.out.println("\nINVALID MALE IDs (INCORRECT GENDER DIGITS)");
+        System.out.println("===================================");
+        
+        for (String id : invalidMaleIds) {
+            boolean isValid = ValidateSaId.validate(id);
+            System.out.printf(
+                "ID: %s → %s%n", 
+                id, 
+                isValid ? "VALID (PASS)" : "INVALID (FAIL)"
+            );
+            assertTrue(isValid, "Should PASS (valid ID format, but wrong gender)");
+        }
+    }
+
+    // ===== COMPLETELY INVALID IDs (Wrong length/format) =====
+    @Test
+    public void testCompletelyInvalidIds() {
+        String[] invalidIds = {
+            null,               // null
+            "",                // empty
+            "123",             // too short
+            "920220500008A",   // contains letter
+            "920220500008712"  // too long (14 digits)
+        };
+
+        System.out.println("\nCOMPLETELY INVALID IDs (SHOULD FAIL)");
+        System.out.println("===============================");
+        
+        for (String id : invalidIds) {
+            boolean isValid = ValidateSaId.validate(id);
+            System.out.printf(
+                "ID: %-15s → %s%n", 
+                id == null ? "null" : "\"" + id + "\"",
+                isValid ? "VALID (FAIL)" : "INVALID (PASS)"
+            );
+            assertFalse(isValid, "Should FAIL: Invalid ID structure");
+        }
+    }
 }
