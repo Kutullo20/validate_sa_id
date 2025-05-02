@@ -251,3 +251,66 @@ CLASS ValidateSaIdTest
 END CLASS
 
 tdd/step-03-failing-test---------------->END
+
+tdd/step-04-reject-special-characters---------------->START
+
+@@MAIN CLASS
+
+METHOD VALIDATE(idNumber)
+    // Reject any non-digit characters in ID
+    // Checks each character is 0-9
+    // Uses Character.isDigit() for Unicode safety
+    
+    
+    FOR EACH char IN idNumber.toCharArray()
+        IF NOT Character.isDigit(char) THEN
+            RETURN FALSE  // Early exit on first non-digit
+        END IF
+    END FOR
+    
+    RETURN TRUE
+END METHOD
+
+@@TEST CLASS
+
+METHOD testStringsWithSpecialCharactersShouldFail()
+    // P: Verify ID numbers containing special characters/letters fail validation
+    // E: Tests letters, spaces, hyphens, underscores, periods, mixed chars
+    // S: Assert all non-digit inputs return false with clear failure messages
+    // U: Ensures only pure numeric IDs pass validation
+
+    INVALID_IDS = [
+        "123456789012A",    
+                          
+        "12345678901 3",    
+                            
+        "12345678901-3",    
+                          
+        "12345678901_3",    
+                          
+        "12345678901.3",    
+                          
+        "ABC!@#1234567",   
+                          
+        "123 456 789 012"   
+                          
+    ]
+
+    PRINT "\nSPECIAL CHARACTER VALIDATION (ALL SHOULD FAIL)"
+    PRINT "==========================================="
+    
+    FOR EACH id IN INVALID_IDS
+        result = CALL ValidateSaId.validate(id)
+        
+        PRINT FORMAT("Input: %-20s → %s",
+                    QUOTE(id),
+                    IF result THEN "PASS (UNEXPECTED)" 
+                    ELSE "FAIL (CORRECT)")
+        
+        ASSERT_FALSE(result,
+            FORMAT("Input %s with special chars passed validation", 
+                  QUOTE(id)))
+    END FOR
+END METHOD
+
+tdd/step-04-reject-special-characters---------------->END
