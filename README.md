@@ -13,7 +13,7 @@
 2. **Navigate to project directory:**
    ```bash
    cd validate_sa_id
-3. **Build the project (using Gradle wrapper:**
+3. **Build the project using Gradle wrapper:**
    ```bash
    ./gradlew build  # Linux/Mac
    gradlew.bat build  # Windows
