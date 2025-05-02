@@ -5,6 +5,7 @@ public class ValidateSaId {
      * Validates a South African ID number
      * 1. Exactly 13 digits
      * 2. Valid date of birth (YYMMDD)
+     * 3. Valid gender digits (SSSS) - 0000-4999 female, 5000-9999 male
      * @param idNumber ID number to validate
      * @return true if valid, false otherwise
      */
@@ -26,52 +27,55 @@ public class ValidateSaId {
         int month = Integer.parseInt(idNumber.substring(2, 4));
         int day = Integer.parseInt(idNumber.substring(4, 6));
         
-        return isValidDate(year, month, day);
+        // Extract gender digits 
+        int genderDigits = Integer.parseInt(idNumber.substring(6, 10));
+        
+        return isValidDate(year, month, day) && isValidGender(genderDigits);
     }
     
     private static boolean isValidDate(int year, int month, int day) {
-        // Validate month (01-12)
+      
         if (month < 1 || month > 12) {
             return false;
         }
         
-        // Validate day
         if (day < 1) {
             return false;
         }
         
-        // Get max days for month
         int maxDays;
         switch (month) {
-            case 2: // February
-                maxDays = isLeapYear(year) ? 29 : 28;
-                break;
-            case 4: case 6: case 9: case 11: // 30-day months
-                maxDays = 30;
-                break;
-            default: // 31-day months
-                maxDays = 31;
-                break;
+            case 2: maxDays = isLeapYear(year) ? 29 : 28; break;
+            case 4: case 6: case 9: case 11: maxDays = 30; break;
+            default: maxDays = 31; break;
         }
         
         return day <= maxDays;
     }
     
     private static boolean isLeapYear(int year) {
-        // Since we only have 2 digits, we need to handle century years carefully
-        // Years 00-99  represent 1900-1999 or 2000-2099
-        // 2000 was a leap year, 1900 was not
-        
-        // Lets  assume:
-        // - If year % 4 == 0, it's a leap year
-        // This works for all years except century years
-        // For a more accurate solution, we will need to know the century
-        
-        // Another approach: treat 00 as 2000 (leap year) and other 00-99 as 1900-1999
         if (year == 0) {
-            return true; // 2000 was a leap year
+            return true;
         }
         return year % 4 == 0;
     }
+    
+    private static boolean isValidGender(int genderDigits) {
+        return true;
+    }
+    
+    /**
+     * Determines gender from ID number
+     * @param idNumber South African ID number
+     * @return "female" if SSSS is 0000-4999, "male" if 5000-9999
+     * @throws IllegalArgumentException if ID number is invalid
+     */
+    public static String getGender(String idNumber) {
+        if (!validate(idNumber)) {
+            throw new IllegalArgumentException("Invalid South African ID number");
+        }
+        
+        int genderDigits = Integer.parseInt(idNumber.substring(6, 10));
+        return genderDigits < 5000 ? "female" : "male";
+    }
 }
-
