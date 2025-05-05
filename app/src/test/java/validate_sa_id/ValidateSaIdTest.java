@@ -6,18 +6,43 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ValidateSaIdTest {
 
     @Test
-    public void testComprehensiveValidId() {
-        // This is a valid ID that passes all checks including Luhn
-        String validId = "8001015009087";
+    public void testAnyValidId() {
+        // Use any valid ID to test
+        String anyValidId = ""; 
         
-        System.out.println("Testing comprehensive valid ID: " + validId);
-        System.out.println("=======================================");
+        ValidateSaId.IDAnalysis result = ValidateSaId.analyzeId(anyValidId);
         
-        // Validate all components
-        assertTrue(ValidateSaId.validate(validId), "ID should be valid");
-        assertEquals("male", ValidateSaId.getGender(validId), "Gender should be male");
-        assertEquals("citizen", ValidateSaId.getCitizenship(validId), "Should be citizen");
+        // Basic validation checks
+        assertTrue(result.isValid());
+        assertNotNull(result.getDetails());
         
-        System.out.println("All validation checks passed for valid ID");
+        // Extract gender digits to determine expected gender
+        int genderDigits = Integer.parseInt(anyValidId.substring(6, 10));
+        String expectedGender = genderDigits < 5000 ? "Female" : "Male";
+        
+        // Dynamic assertion based on the ID's actual gender digits
+        assertEquals(expectedGender, result.getDetails().getGender());
+        
+        System.out.println("VALID ID ANALYSIS:");
+        System.out.println("ID: " + anyValidId);
+        System.out.println("Date of Birth: " + result.getDetails().getDateOfBirth());
+        System.out.println("Age: " + result.getDetails().getAge() + " years");
+        System.out.println("Gender: " + result.getDetails().getGender());
+        System.out.println("Citizenship: " + result.getDetails().getCitizenship());
+    }
+
+    @Test
+    public void testAnyInvalidId() {
+         // Use any Invalid ID to test
+        String anyInvalidId = ""; 
+        
+        ValidateSaId.IDAnalysis result = ValidateSaId.analyzeId(anyInvalidId);
+        
+        assertFalse(result.isValid());
+        assertFalse(result.getErrors().isEmpty());
+        
+        System.out.println("INVALID ID ANALYSIS:");
+        System.out.println("ID: " + anyInvalidId);
+        result.getErrors().forEach(System.out::println);
     }
 }
