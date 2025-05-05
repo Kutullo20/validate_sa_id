@@ -1,136 +1,167 @@
 package validate_sa_id;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ValidateSaId {
-    /**
-     * Validates a South African ID number
-     * 1. Exactly 13 digits
-     * 2. Valid date of birth (YYMMDD)
-     * 3. Valid gender digits (SSSS) - 0000-4999 female, 5000-9999 male
-     * 4. Valid citizenship digit (C) - 0 for citizen, 1 for permanent resident
-     * 5. Valid Luhn checksum
-     * @param idNumber ID number to validate
-     * @return true if valid, false otherwise
-     */
-    public static boolean validate(String idNumber) {
+
+    public static IDAnalysis analyzeId(String idNumber) {
+        List<String> errors = new ArrayList<>();
+        IDDetails details = new IDDetails();
+
         // Basic validation
         if (idNumber == null || idNumber.length() != 13) {
-            return false;
+            errors.add("ID must be exactly 13 digits");
+            return new IDAnalysis(false, errors, details);
         }
-        
+
         // Check all digits
         for (char c : idNumber.toCharArray()) {
             if (!Character.isDigit(c)) {
-                return false;
+                errors.add("ID must contain only numbers");
+                return new IDAnalysis(false, errors, details);
             }
         }
-        
-        // Extract date components
+
+        // Extract components
         int year = Integer.parseInt(idNumber.substring(0, 2));
         int month = Integer.parseInt(idNumber.substring(2, 4));
         int day = Integer.parseInt(idNumber.substring(4, 6));
-        
-        // Extract gender digits 
         int genderDigits = Integer.parseInt(idNumber.substring(6, 10));
-        
-        // Extract citizenship digit
-        int citizenshipDigit = Integer.parseInt(idNumber.substring(10, 11));
-        
-        // Validate all components including Luhn checksum
-        return isValidDate(year, month, day) && 
-               isValidGender(genderDigits) && 
-               isValidCitizenship(citizenshipDigit) &&
-               isValidLuhn(idNumber);
+        int citizenship = Integer.parseInt(idNumber.substring(10, 11));
+
+        // Validate components
+        boolean validDate = validateDate(year, month, day, errors, details);
+        boolean validGender = validateGender(genderDigits, errors, details);
+        boolean validCitizen = validateCitizenship(citizenship, errors, details);
+        boolean validLuhn = validateLuhn(idNumber, errors);
+
+        if (validDate) {
+            details.setDateOfBirth(formatDate(idNumber));
+            details.setAge(calculateAge(idNumber));
+        }
+
+        return new IDAnalysis(
+            errors.isEmpty(), 
+            errors, 
+            errors.isEmpty() ? details : null
+        );
     }
-    
-    private static boolean isValidDate(int year, int month, int day) {
+
+    private static boolean validateDate(int year, int month, int day, 
+                                     List<String> errors, IDDetails details) {
         if (month < 1 || month > 12) {
+            errors.add("Invalid month (must be 01-12)");
             return false;
         }
-        
-        if (day < 1) {
+
+        int maxDays = switch (month) {
+            case 2 -> isLeapYear(year) ? 29 : 28;
+            case 4, 6, 9, 11 -> 30;
+            default -> 31;
+        };
+
+        if (day < 1 || day > maxDays) {
+            errors.add("Invalid day for month (max " + maxDays + " days)");
             return false;
         }
-        
-        int maxDays;
-        switch (month) {
-            case 2: maxDays = isLeapYear(year) ? 29 : 28; break;
-            case 4: case 6: case 9: case 11: maxDays = 30; break;
-            default: maxDays = 31; break;
-        }
-        
-        return day <= maxDays;
+        return true;
     }
-    
+
     private static boolean isLeapYear(int year) {
-        if (year == 0) {
-            return true;
+        int fullYear = year < 20 ? 2000 + year : 1900 + year;
+        return (fullYear % 4 == 0 && (fullYear % 100 != 0 || fullYear % 400 == 0));
+    }
+
+    private static boolean validateGender(int genderDigits, 
+                                       List<String> errors, IDDetails details) {
+        if (genderDigits < 0 || genderDigits > 9999) {
+            errors.add("Invalid gender digits (0000-9999)");
+            return false;
         }
-        return year % 4 == 0;
+        details.setGender(genderDigits < 5000 ? "Female" : "Male");
+        return true;
     }
-    
-    private static boolean isValidGender(int genderDigits) {
-        return true; // Any 4-digit number is valid for gender digits
+
+    private static boolean validateCitizenship(int citizenship, 
+                                            List<String> errors, IDDetails details) {
+        if (citizenship != 0 && citizenship != 1) {
+            errors.add("Invalid citizenship digit (must be 0 or 1)");
+            return false;
+        }
+        details.setCitizenship(citizenship == 0 ? "SA Citizen" : "Permanent Resident");
+        return true;
     }
-    
-    private static boolean isValidCitizenship(int citizenshipDigit) {
-        return citizenshipDigit == 0 || citizenshipDigit == 1;
-    }
-    
-    /**
-     * Validates the ID number using the Luhn algorithm
-     * @param idNumber The ID number to validate
-     * @return true if valid, false otherwise
-     */
-    private static boolean isValidLuhn(String idNumber) {
+
+    private static boolean validateLuhn(String id, List<String> errors) {
         int sum = 0;
         boolean alternate = false;
-        
-        for (int i = idNumber.length() - 1; i >= 0; i--) {
-            int digit = Character.getNumericValue(idNumber.charAt(i));
-            
+        for (int i = id.length() - 1; i >= 0; i--) {
+            int digit = Character.getNumericValue(id.charAt(i));
             if (alternate) {
                 digit *= 2;
-                if (digit > 9) {
-                    digit = (digit % 10) + 1;
-                }
+                if (digit > 9) digit = (digit % 10) + 1;
             }
-            
             sum += digit;
             alternate = !alternate;
         }
-        
-        return (sum % 10) == 0;
-    }
-    
-    /**
-     * Determines gender from ID number
-     * @param idNumber South African ID number
-     * @return "female" if SSSS is 0000-4999, "male" if 5000-9999
-     * @throws IllegalArgumentException if ID number is invalid
-     */
-    public static String getGender(String idNumber) {
-        if (!validate(idNumber)) {
-            throw new IllegalArgumentException("Invalid South African ID number");
+        if (sum % 10 != 0) {
+            errors.add("Failed Luhn checksum validation");
+            return false;
         }
-        
-        int genderDigits = Integer.parseInt(idNumber.substring(6, 10));
-        return genderDigits < 5000 ? "female" : "male";
+        return true;
     }
-    
-    /**
-     * Determines citizenship status from ID number
-     * @param idNumber South African ID number
-     * @return citizen=> if C is 0, permanent resident=> if C is 1
-     * @throws IllegalArgumentException if ID number is invalid
-     */
-    public static String getCitizenship(String idNumber) {
-        if (!validate(idNumber)) {
-            throw new IllegalArgumentException("Invalid South African ID number");
+
+    private static String formatDate(String id) {
+        int year = Integer.parseInt(id.substring(0, 2));
+        int month = Integer.parseInt(id.substring(2, 4));
+        int day = Integer.parseInt(id.substring(4, 6));
+        int fullYear = year < 20 ? 2000 + year : 1900 + year;
+        return String.format("%02d/%02d/%04d", day, month, fullYear);
+    }
+
+    private static int calculateAge(String id) {
+        int year = Integer.parseInt(id.substring(0, 2));
+        int month = Integer.parseInt(id.substring(2, 4));
+        int day = Integer.parseInt(id.substring(4, 6));
+        int fullYear = year < 20 ? 2000 + year : 1900 + year;
+        LocalDate dob = LocalDate.of(fullYear, month, day);
+        return Period.between(dob, LocalDate.now()).getYears();
+    }
+
+    public static class IDAnalysis {
+        private final boolean isValid;
+        private final List<String> errors;
+        private final IDDetails details;
+
+        public IDAnalysis(boolean isValid, List<String> errors, IDDetails details) {
+            this.isValid = isValid;
+            this.errors = errors;
+            this.details = details;
         }
-        
-        int citizenshipDigit = Integer.parseInt(idNumber.substring(10, 11));
-        return citizenshipDigit == 0 ? "citizen" : "permanent resident";
+
+        // Getters
+        public boolean isValid() { return isValid; }
+        public List<String> getErrors() { return errors; }
+        public IDDetails getDetails() { return details; }
+    }
+
+    public static class IDDetails {
+        private String dateOfBirth;
+        private int age;
+        private String gender;
+        private String citizenship;
+
+        // Getters and Setters
+        public String getDateOfBirth() { return dateOfBirth; }
+        public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+        public int getAge() { return age; }
+        public void setAge(int age) { this.age = age; }
+        public String getGender() { return gender; }
+        public void setGender(String gender) { this.gender = gender; }
+        public String getCitizenship() { return citizenship; }
+        public void setCitizenship(String citizenship) { this.citizenship = citizenship; }
     }
 }
-
-

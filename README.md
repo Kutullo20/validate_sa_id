@@ -1,3 +1,13 @@
+# 🛠️ **Gradle by Hand: With Command Line Prompt**  
+### If you use tools that do all your thinking for you, you’ll struggle when things break. To **become a pro**, it’s worth doing things manually—at least for a while. 
+
+### 🚫 No IDE Allowed (We are doing it for Fun)
+### 💻 Come On, You Only Need CMD
+### 🤖 Who Are We Without AI? LOL
+### 🛠️ Embrace Generative AI as Your Assistant
+### 🔍 However, Understand What It Provides
+### 💥 Don't Forget to Challenge It Hard
+
 ## 🚀 Getting Started
 
 ### 📋 Prerequisites
